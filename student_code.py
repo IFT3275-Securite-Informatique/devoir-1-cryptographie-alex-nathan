@@ -117,12 +117,15 @@ sorted_symbols = [(' ', 680106), ('e', 450591), ('s', 245857), ('a', 226470), ('
                   ('/', 85), ('À', 78), ('Ê', 35), ('—', 34), ('Ç', 23), ('%', 10), ('…', 8), ('Â', 3), ('”', 0),
                   ('\ufeff', 0), ('$', 0), ('Î', 0), ('‘', 0), ('•', 0), ('#', 0), ('™', 0), ('“', 0)]
 
+one_char_symbols = [(symbol, count) for symbol, count in sorted_symbols if len(symbol) == 1]
+two_char_symbols = [(symbol, count) for symbol, count in sorted_symbols if len(symbol) == 2]
+
+# print(sorted_symbols)
+# print(one_char_symbols)
+# print(two_char_symbols)
 
 def decrypt(C):
     M = ""
-
-    one_char_symbols = [(symbol, count) for symbol, count in sorted_symbols if len(symbol) == 1]
-    two_char_symbols = [(symbol, count) for symbol, count in sorted_symbols if len(symbol) == 2]
 
     # Step 1: Separate C into 8-bit chunks
     chunks = [C[i:i + 8] for i in range(0, len(C), 8)]
@@ -131,25 +134,23 @@ def decrypt(C):
     frequency_count = Counter(chunks)
     sorted_chunks = list(frequency_count)
 
-    # Step 3: Create a dictionary based on the frequency of each chunk, but give priority to pairs
-    mapping = {sym: "" for sym, _ in sorted_symbols}
+    # Step 3: Adjust the values of the single characters
+    for i in range(len(one_char_symbols)):
+        char, char_freq = one_char_symbols[i]
 
-    position = 0
+        for j in range(len(two_char_symbols)):
+            two_char, two_char_freq = two_char_symbols[j]
 
-    for two_char, _ in two_char_symbols:
-        if position >= len(sorted_chunks):
-            break
-        mapping[two_char] = sorted_chunks[position]
-        position += 1
+            if two_char.startswith(char):
+                char_freq -= two_char_freq
 
-    for char, _ in one_char_symbols:
-        if position >= len(sorted_chunks):
-            break
-        mapping[char] = sorted_chunks[position]
-        position += 1
+        one_char_symbols[i] = (char, char_freq)
 
-    # Step 4: Invert the resulting dictionary
-    inverted_mapping = {value: key for key, value in mapping.items()}
+    combined_symbols = one_char_symbols + two_char_symbols
+    combined_symbols.sort(key=lambda x: x[1], reverse=True)
+
+    # Step 4: Create a dictionary based on the frequency of each chunk
+    inverted_mapping = dict(zip(sorted_chunks, [symbol for symbol, _ in combined_symbols]))
 
     # Step 5: Decode message
     M = ''.join(inverted_mapping.get(code, '') for code in chunks)
