@@ -1,31 +1,6 @@
 from crypt import load_text_from_web, gen_key, chiffrer
 from collections import Counter
 
-# List of URLs for the Corpus
-url_list = ["https://www.gutenberg.org/ebooks/13846.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/4650.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/69794.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/39331.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/67924.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/72071.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/55639.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/66894.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/11046.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/67867.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/55637.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/55766.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/66261.txt.utf-8",
-            "https://www.gutenberg.org/ebooks/71208.txt.utf-8"]
-
-# Add URLs to the Corpus
-corpus = ""
-
-for (i, url_i) in enumerate(url_list):
-    text = load_text_from_web(url_i).strip().split("***")[2]  # Retire la partie anglophone au début de chaque texte
-    corpus = corpus + text
-
 # Liste de symboles fixés
 symboles = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y', '%', 'N', 'B', 'V', '\ufeff', 'Ê', '?',
             '’', 'i', ':', 's', 'C', 'â', 'ï', 'W', 'y', 'p', 'D', '—', '«', 'º', 'A', '3', 'n', '0', 'q', '4', 'e',
@@ -41,36 +16,6 @@ symboles = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y
             'à ', 'lu', "'e", 'mo', 'ta', 'as', 'at', 'io', 's\r', 'sa', "u'", 'av', 'os', ' à', ' u', "l'", "'a", 'rs',
             'pl', 'é ', '; ', 'ho', 'té', 'ét', 'fa', 'da', 'li', 'su', 't\r', 'ée', 'ré', 'dé', 'ec', 'nn', 'mm', "'i",
             'ca', 'uv', '\n\r', 'id', ' b', 'ni', 'bl']
-
-# Code utilisé pour obtenir la liste de symbole triée par ordre de fréquence
-"""
-french_txt = corpus[:]
-
-# Compteur de fréquence
-frequencies = {symbol: 0 for symbol in symboles}
-
-i = 0
-
-while i < len(french_txt):
-    # Vérifie les paires de caractères
-    if i + 1 < len(french_txt):
-        pair = french_txt[i] + french_txt[i + 1]
-        if pair in frequencies:
-            frequencies[pair] += 1
-            i += 2  # Sauter les deux caractères utilisés
-            continue
-
-    # Vérifie le caractère seul
-    if french_txt[i] in frequencies:
-        frequencies[french_txt[i]] += 1
-
-    i += 1
-
-sorted_symbols = sorted(frequencies.items(), key=lambda item: item[1], reverse=True)
-
-# Output the sorted list
-print(sorted_symbols)
-"""
 
 # Liste de symboles paf leurs fréquences dans le corpus
 sorted_symbols = [(' ', 128345), ('\r\n', 67477), ('e ', 64833), ('s ', 53863), (', ', 45957), ('_', 39582),
@@ -111,31 +56,95 @@ sorted_symbols = [(' ', 128345), ('\r\n', 67477), ('e ', 64833), ('s ', 53863), 
                   ('Ç', 23), ('%', 10), ('…', 8), ('Â', 3), ('\r', 0), ('”', 0), ('\ufeff', 0), ('$', 0), ('Î', 0),
                   ('‘', 0), ('•', 0), ('#', 0), ('™', 0), ('“', 0)]
 
-# one_char_symbols = [(symbol, count) for symbol, count in sorted_frequencies if len(symbol) == 1]
-# two_char_symbols = [(symbol, count) for symbol, count in sorted_frequencies if len(symbol) == 2]
 
+# Code pour générer un corpus de langue française
+def generate_corpus():
+    # List of URLs for the Corpus
+    url_list = ["https://www.gutenberg.org/ebooks/13846.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/4650.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/69794.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/39331.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/67924.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/72071.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/55639.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/66894.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/11046.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/67867.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/55637.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/55766.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/66261.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/71208.txt.utf-8"]
+
+    # Add URLs to the Corpus
+    corpus = ""
+
+    for (i, url_i) in enumerate(url_list):
+        text = load_text_from_web(url_i).strip().split("***")[2]  # Retire la partie anglophone au début de chaque texte
+        corpus = corpus + text
+
+    return corpus
+
+
+# Code utilisé pour obtenir la liste de symbole triée par ordre de fréquence
+def find_symbol_frequency():
+    french_txt = generate_corpus[:]
+
+    # Compteur de fréquence
+    frequencies = {symbol: 0 for symbol in symboles}
+
+    i = 0
+
+    while i < len(french_txt):
+        # Vérifie les paires de caractères
+        if i + 1 < len(french_txt):
+            pair = french_txt[i] + french_txt[i + 1]
+            if pair in frequencies:
+                frequencies[pair] += 1
+                i += 2  # Sauter les deux caractères utilisés
+                continue
+
+        # Vérifie le caractère seul
+        if french_txt[i] in frequencies:
+            frequencies[french_txt[i]] += 1
+
+        i += 1
+
+    sorted_symbols = sorted(frequencies.items(), key=lambda item: item[1], reverse=True)
+
+    # Output the sorted list
+    return sorted_symbols
+
+
+# Code pour déchiffrer le cryptogramme C
 def decrypt(C):
     M = ""
 
-    # Step 1: Separate C into 8-bit chunks
+    # Étape 1: Séparer C en chunks de 8 bits
     chunks = [C[i:i + 8] for i in range(0, len(C), 8)]
 
-    # Step 2: Count frequency of each chunk
+    # Étape 2: Compter la fréquence de chaque chunk
     frequency_count = Counter(chunks)
     sorted_chunks = [chunk for chunk, _ in frequency_count.most_common()]
 
-    # Step 3: Create a dictionary based on the frequency of each chunk
+    # Étape 3: Créer un dictionnaire basé sur la fréquence des chunks et des symboles
     inverted_mapping = dict(zip(sorted_chunks, [symbol for symbol, _ in sorted_symbols]))
 
-    # Step 4: Decode message
+    # Étape 4: Décoder le message
     M = ''.join([inverted_mapping[chunk] for chunk in chunks])
 
     return M
 
-M = corpus[0:10000]
+
+# TODO: REMOVE! THIS IS FOR TESTING
+M = generate_corpus()[0:10000]
 K = gen_key(symboles)
 C = chiffrer(M, K, symboles)
 D = decrypt(C)
 
 print("M: ", M)
 print("D: ", D)
+
+# one_char_symbols = [(symbol, count) for symbol, count in sorted_frequencies if len(symbol) == 1]
+# two_char_symbols = [(symbol, count) for symbol, count in sorted_frequencies if len(symbol) == 2]
