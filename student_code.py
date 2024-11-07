@@ -59,7 +59,7 @@ sorted_symbols = [(' ', 128345), ('\r\n', 67477), ('e ', 64833), ('s ', 53863), 
 
 # Code pour générer un corpus de langue française
 def generate_corpus():
-    # List of URLs for the Corpus
+    # Liste d'URLs pour le Corpus
     url_list = ["https://www.gutenberg.org/ebooks/13846.txt.utf-8",
                 "https://www.gutenberg.org/ebooks/4650.txt.utf-8",
                 "https://www.gutenberg.org/ebooks/69794.txt.utf-8",
@@ -77,7 +77,7 @@ def generate_corpus():
                 "https://www.gutenberg.org/ebooks/66261.txt.utf-8",
                 "https://www.gutenberg.org/ebooks/71208.txt.utf-8"]
 
-    # Add URLs to the Corpus
+    # Ajouter le contenu des URLs dans le Corpus
     corpus = ""
 
     for (i, url_i) in enumerate(url_list):
@@ -97,7 +97,7 @@ def find_symbol_frequency():
     i = 0
 
     while i < len(french_txt):
-        # Vérifie les paires de caractères
+        # Vérifier les paires de caractères
         if i + 1 < len(french_txt):
             pair = french_txt[i] + french_txt[i + 1]
             if pair in frequencies:
@@ -105,7 +105,7 @@ def find_symbol_frequency():
                 i += 2  # Sauter les deux caractères utilisés
                 continue
 
-        # Vérifie le caractère seul
+        # Vérifier le caractère seul
         if french_txt[i] in frequencies:
             frequencies[french_txt[i]] += 1
 
