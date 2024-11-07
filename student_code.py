@@ -113,7 +113,6 @@ def find_symbol_frequency():
 
     sorted_symbols = sorted(frequencies.items(), key=lambda item: item[1], reverse=True)
 
-    # Output the sorted list
     return sorted_symbols
 
 
