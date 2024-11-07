@@ -2,7 +2,7 @@ from crypt import load_text_from_web, gen_key, chiffrer
 from collections import Counter
 
 # Liste de symboles fixés
-symboles = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y', '%', 'N', 'B', 'V', '\ufeff', 'Ê', '?',
+symbols = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y', '%', 'N', 'B', 'V', '\ufeff', 'Ê', '?',
             '’', 'i', ':', 's', 'C', 'â', 'ï', 'W', 'y', 'p', 'D', '—', '«', 'º', 'A', '3', 'n', '0', 'q', '4', 'e',
             'T', 'È', '$', 'U', 'v', '»', 'l', 'P', 'X', 'Z', 'À', 'ç', 'u', '…', 'î', 'L', 'k', 'E', 'R', '2', '_',
             '8', 'é', 'O', 'Î', '‘', 'a', 'F', 'H', 'c', '[', '(', "'", 'è', 'I', '/', '!', ' ', '°', 'S', '•', '#',
@@ -13,9 +13,9 @@ symboles = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y
             'eu', 'co', 'tr', 'la', 'ar', 'ie', 'ui', 'us', 'ut', 'il', ' t', 'pa', 'au', 'el', 'ti', 'st', 'un', 'em',
             'ra', 'e,', 'so', 'or', 'l ', ' f', 'll', 'nd', ' j', 'si', 'ir', 'e\r', 'ss', 'u ', 'po', 'ro', 'ri', 'pr',
             's,', 'ma', ' v', ' i', 'di', ' r', 'vo', 'pe', 'to', 'ch', '. ', 've', 'nc', 'om', ' o', 'je', 'no', 'rt',
-            'à ', 'lu', "'e", 'mo', 'ta', 'as', 'at', 'io', 's\r', 'sa', "u'", 'av', 'os', ' à', ' u', "l'", "'a", 'rs',
-            'pl', 'é ', '; ', 'ho', 'té', 'ét', 'fa', 'da', 'li', 'su', 't\r', 'ée', 'ré', 'dé', 'ec', 'nn', 'mm', "'i",
-            'ca', 'uv', '\n\r', 'id', ' b', 'ni', 'bl']
+           'à ', 'lu', "'e", 'mo', 'ta', 'as', 'at', 'io', 's\r', 'sa', "u'", 'av', 'os', ' à', ' u', "l'", "'a", 'rs',
+           'pl', 'é ', '; ', 'ho', 'té', 'ét', 'fa', 'da', 'li', 'su', 't\r', 'ée', 'ré', 'dé', 'ec', 'nn', 'mm', "'i",
+           'ca', 'uv', '\n\r', 'id', ' b', 'ni', 'bl']
 
 # Liste de symboles paf leurs fréquences dans le corpus
 sorted_symbols = [(' ', 128345), ('\r\n', 67477), ('e ', 64833), ('s ', 53863), (', ', 45957), ('_', 39582),
@@ -92,7 +92,7 @@ def find_symbol_frequency():
     french_txt = generate_corpus[:]
 
     # Compteur de fréquence
-    frequencies = {symbol: 0 for symbol in symboles}
+    frequencies = {symbol: 0 for symbol in symbols}
 
     i = 0
 
@@ -139,8 +139,8 @@ def decrypt(C):
 
 # TODO: REMOVE! THIS IS FOR TESTING
 M = generate_corpus()[0:10000]
-K = gen_key(symboles)
-C = chiffrer(M, K, symboles)
+K = gen_key(symbols)
+C = chiffrer(M, K, symbols)
 D = decrypt(C)
 
 print("M: ", M)
