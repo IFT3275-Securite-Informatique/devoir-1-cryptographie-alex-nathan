@@ -17,6 +17,9 @@ symbols = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y'
            'pl', 'é ', '; ', 'ho', 'té', 'ét', 'fa', 'da', 'li', 'su', 't\r', 'ée', 'ré', 'dé', 'ec', 'nn', 'mm', "'i",
            'ca', 'uv', '\n\r', 'id', ' b', 'ni', 'bl']
 
+# Clé pour tester
+K = gen_key(symbols)  # TODO: REMOVE WHEN TESTS ARE DONE
+
 # Liste de symboles paf leurs fréquences dans le corpus
 sorted_symbols = [(' ', 130167), ('e ', 73260), ('\r\n', 71838), ('s ', 58451), (', ', 49016), ('t ', 43097),
                   (' d', 40076), ('_', 39834), ('es', 36943), ('le', 33739), ('a', 32315), ('de', 31607), ('re', 31030),
@@ -57,7 +60,7 @@ sorted_symbols = [(' ', 130167), ('e ', 73260), ('\r\n', 71838), ('s ', 58451), 
                   ('$', 0), ('‘', 0), ('•', 0), ('#', 0), ('™', 0), ('“', 0)]
 
 
-# Code pour générer un corpus de langue française
+# Générer un corpus de langue française
 def generate_corpus():
     # Liste d'URLs pour le Corpus
     url_list = ["https://www.gutenberg.org/ebooks/13846.txt.utf-8",
@@ -88,7 +91,7 @@ def generate_corpus():
     return corpus
 
 
-# Code utilisé pour obtenir la liste de symbole triée par ordre de fréquence
+# Obtenir la liste de symbole triée par ordre de fréquence
 def find_symbol_frequency():
     french_txt = generate_corpus()[:]
 
@@ -117,6 +120,26 @@ def find_symbol_frequency():
     return sorted_symbols
 
 
+# Comparer la vraie clé de test K avec la clé prédite pour tester les résultats
+def compare_K(K, K_pred):
+    inverted_K = {value: key for key, value in K.items()}
+    sorted_K = {}
+
+    nb_errors = 0
+
+    for code, symbol in K_pred.items():
+        sorted_K[code] = inverted_K[code]
+
+        if sorted_K[code] != symbol:
+            nb_errors += 1
+        else:
+            print("Succès! {0} = {1}".format(code, symbol))
+
+    print("K: ", sorted_K)
+    print("Prédiction de K: ", K_pred)
+    print("Nombre d'erreurs de substitution: {0} ({1})%".format(nb_errors, nb_errors/len(K)*100))
+
+
 # Code pour déchiffrer le cryptogramme C
 def decrypt(C):
     M = ""
@@ -130,7 +153,7 @@ def decrypt(C):
 
     # Étape 3: Créer un dictionnaire basé sur la fréquence des chunks et des symboles
     inverted_mapping = dict(zip(sorted_chunks, [symbol for symbol, _ in sorted_symbols]))
-    # print(inverted_mapping)
+    compare_K(K, inverted_mapping)
 
     # Étape 4: Décoder le message
     M = ''.join([inverted_mapping[chunk] for chunk in chunks])
@@ -139,15 +162,12 @@ def decrypt(C):
 
 
 # TODO: REMOVE! THIS IS FOR TESTING
-M = generate_corpus()[50000:150000]
-K = gen_key(symbols)
+M = generate_corpus()[50000:250000]
 C = chiffrer(M, K, symbols)
 D = decrypt(C)
 
 # print("M: ", M)
 # print("D: ", D)
-
-# print(K)
 
 # one_char_symbols = [(symbol, count) for symbol, count in sorted_frequencies if len(symbol) == 1]
 # two_char_symbols = [(symbol, count) for symbol, count in sorted_frequencies if len(symbol) == 2]
