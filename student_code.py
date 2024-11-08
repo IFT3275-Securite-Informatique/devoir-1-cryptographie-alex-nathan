@@ -92,18 +92,18 @@ def generate_corpus():
         text = load_text_from_web(url_i).strip().split(" ***")[1]
         corpus = corpus + text
 
+    # Retirer les symboles sur-représentés
+    corpus = re.sub(r' {2,}', '', corpus)
+    corpus = re.sub(r'_{2,}', '', corpus)
+    corpus = re.sub(r'\.{4,}', '', corpus)
+    corpus = re.sub(r'\*{2,}', '', corpus)
+
     return corpus
 
 
 # Obtenir la liste de symbole triée par ordre de fréquence
 def find_symbol_frequency():
     french_txt = generate_corpus()[:]
-
-    # Normaliser les symboles sur-représentés
-    french_txt = re.sub(r' {2,}', '', french_txt)
-    french_txt = re.sub(r'_{2,}', '', french_txt)
-    french_txt = re.sub(r'\.{4,}', '', french_txt)
-    french_txt = re.sub(r'\*{2,}', '', french_txt)
 
     # Compter les fréquences
     frequencies = {symbol: 0 for symbol in symbols}
@@ -149,6 +149,17 @@ def compare_K(K, K_pred):
     print("Prédiction de K: ", K_pred)
     print("Nombre d'erreurs de substitution: {0} ({1}%)".format(nb_errors, nb_errors / len(K) * 100))
 
+
+# Divise un dictionnaire en blocs
+def divide_dict(d, size=8):
+    items = list(d.items())
+    blocs = [dict(items[i:i + size]) for i in range(0, len(items), size)]
+
+    return blocs
+
+# Divise une liste en blocs
+def divide_list(l, size=8):
+    return [l[i:i + size] for i in range(0, len(l), size)]
 
 # Code pour déchiffrer le cryptogramme C
 def decrypt(C):
