@@ -1,3 +1,8 @@
+# MEMBRES DE L'ÉQUIPE (Nom - Matricule):
+# Alexandre Stang - 20211138
+# Nathan Bussière - 20218547
+# Gabriel Hazan - 20198680
+
 from crypt import load_text_from_web, gen_key, chiffrer
 from collections import Counter
 import re
@@ -107,6 +112,7 @@ def find_impossible_neighbors():
 
     for symbol in one_char_symbols:
         neighbors = [word[1] for word in two_char_symbols if word.startswith(symbol)]
+        neighbors.extend([word for word in two_char_symbols if (symbol + word[0]) in two_char_symbols])
 
         if len(neighbors) > 0:
             impossible_neighbors[symbol] = neighbors
@@ -311,21 +317,96 @@ sorted_trigrams = {' de': 0.010197210270740862, 'es ': 0.009518466344467128, 'de
 
 # Dictionnaire des combinaisons de un caractère impossibles à réaliser
 impossible_neighbors = {
-    ' ': ['d', 'l', 'p', 'c', 's', 'e', 'a', 'q', 'm', 'n', 't', 'f', 'v', 'r', 'à', 'j', 'b', 'i', 'u', 'o'],
-    'a': ['i', 'n', 'u', ' ', 'r', 't', 'v', 's'], 'é': ['t', ' ', 'e'], 'c': ['e', 'o', 'h', 'a'],
-    'r': ['e', ' ', 'a', 'i', 'o', 's', 't', 'é'], 'u': ['r', 's', 'e', 'n', 'i', ' ', 't', 'v', "'"],
-    'i': ['e', 'n', 's', 'l', 't', ' ', 'r', 'o', 'd'], 'd': ['e', 'i', 'a', 'é'],
-    'n': ['t', ' ', 'e', 's', 'd', 'o', 'c', 'i', 'n'], 'e': [' ', 's', 'n', 't', 'r', 'u', 'l', ',', 'm', '\r', 'c'],
-    '.': [' '], 'f': ['a'], 'l': ['e', 'a', 'l', ' ', 'u', 'i', "'"], 'm': ['e', 'a', 'o', 'm'],
-    't': [' ', 'e', 'r', 'i', 'o', 'a', 'é', '\r'], 'b': ['l'], 'p': ['a', 'r', 'o', 'e', 'l'],
-    's': [' ', 'e', ',', 'o', 's', 'i', 't', 'a', '\r', 'u'], 'v': ['e', 'o'], 'o': ['n', 'u', 'i', 'r', 'm', 's'],
-    '\n': ['\r'], 'h': ['o'], "'": ['a', 'e', 'i'], 'j': ['e'], ',': [' '], 'à': [' '], ';': [' '], 'q': ['u'],
-    '\r': ['\n']}
+    ' ': ['d', 'l', 'p', 'c', 's', 'e', 'a', 'q', 'm', 'n', 't', 'f', 'v', 'r', 'à', 'j', 'b', 'i', 'u', 'o', 'e ',
+          's ', 't ', 'es', 'le', 're', 'de', 'on', 'en', 'qu', 'ou', 'ai', 'nt', 'an', 'me', 'te', 'ur', 'et', 'ie',
+          'er', 'in', 'la', 'is', 'n ', 'r ', 'il', 'ce', 'ra', 'it', 'se', 'co', 'au', 'a ', 'ne', 'tr', 'ns', 'ar',
+          'us', 'oi', 'ue', 'pa', 'un', 'ui', 'ch', 'u ', 'eu', 'ri', 'ma', 'i ', 's,', 'ti', 've', 'pr', 'po', 'ut',
+          'el', 'or', 'so', 'll', 'ss', 'e,', 'ir', 'ro', 'à ', 'em', 'pe', 'si', 'nd', 'st', 'di', 'l ', 'to', 'vo',
+          'mo', 'e\r', 'bl', 'sa', 'at', 'pl', 'da', 'no', 'rs', 'lu', 'li', 'ta', 'av', 'rt', 'as', 'mm', 's\r', 'om',
+          'nc', 'ré', 'fa', 'ca', 'su', 'io', 'je', 'té', 'dé', 'ni', "l'", 't\r', 'os', 'uv', 'ec', 'nn', 'id', "u'"],
+    'a': ['i', 'n', 'u', ' ', 'r', 't', 'v', 's', 's ', 't ', ' d', 're', ' l', 'nt', ' p', 'te', ' c', ' s', ' e',
+          'ur', 'ie', 'in', 'is', 'n ', ' a', 'r ', 'il', 'ra', 'it', 'se', 'ne', 'tr', ' q', 'ns', 'us', 'ue', ' m',
+          'un', 'ui', 'u ', 'ri', 'i ', 's,', 'ti', 've', ' n', ' t', ' f', 'ut', 'so', 'ss', 'ir', ' v', 'ro', 'si',
+          ' r', 'nd', 'st', 'to', 'vo', 'sa', ' à', 'no', 'rs', 'ta', 'rt', 's\r', 'nc', ' j', 'ré', ' b', ' i', ' u',
+          'su', 'io', 'té', 'ni', ' o', 't\r', 'uv', 'nn', 'id', "u'"],
+    'é': ['t', ' ', 'e', 'e ', 't ', ' d', 'es', ' l', 'en', ' p', 'te', ' c', ' s', ' e', 'et', 'er', ' a', 'tr', ' q',
+          ' m', 'eu', 'ti', ' n', ' t', ' f', 'el', 'e,', ' v', 'em', ' r', 'to', 'e\r', ' à', 'ta', ' j', ' b', ' i',
+          ' u', 'té', ' o', 't\r', 'ec'],
+    'c': ['e', 'o', 'h', 'a', 'e ', 'es', 'on', 'en', 'ou', 'ai', 'an', 'et', 'er', 'au', 'a ', 'ar', 'oi', 'eu', 'el',
+          'or', 'e,', 'em', 'e\r', 'at', 'av', 'as', 'om', 'ho', 'os', 'ec'],
+    'r': ['e', ' ', 'a', 'i', 'o', 's', 't', 'é', 'e ', 's ', 't ', ' d', 'es', ' l', 'on', 'en', 'ou', 'ai', ' p',
+          'an', 'te', ' c', ' s', ' e', 'et', 'ie', 'er', 'in', 'is', ' a', 'il', 'it', 'se', 'au', 'a ', 'tr', ' q',
+          'ar', 'oi', ' m', 'eu', 'i ', 's,', 'ti', ' n', ' t', ' f', 'el', 'or', 'so', 'ss', 'e,', 'ir', 'ét', ' v',
+          'em', 'si', ' r', 'st', 'to', 'e\r', 'sa', 'é ', 'at', ' à', 'ta', 'av', 'ée', 'as', 's\r', 'om', ' j', ' b',
+          ' i', ' u', 'su', 'io', 'té', ' o', 't\r', 'os', 'ec', 'id'],
+    'u': ['r', 's', 'e', 'n', 'i', ' ', 't', 'v', "'", 'e ', 's ', 't ', ' d', 'es', 're', ' l', 'en', 'nt', ' p', 'te',
+          ' c', ' s', ' e', 'et', 'ie', 'er', 'in', 'is', 'n ', ' a', 'r ', 'il', 'ra', 'it', 'se', 'ne', 'tr', ' q',
+          'ns', ' m', 'eu', 'ri', 'i ', 's,', 'ti', 've', ' n', ' t', ' f', 'el', 'so', 'ss', 'e,', 'ir', ' v', 'ro',
+          'em', 'si', ' r', 'nd', 'st', 'to', 'vo', 'e\r', 'sa', ' à', 'no', 'rs', 'ta', 'rt', "'a", 's\r', 'nc', ' j',
+          'ré', ' b', ' i', "'e", ' u', 'su', 'io', 'té', 'ni', ' o', 't\r', 'ec', 'nn', "'i", 'id'],
+    'i': ['e', 'n', 's', 'l', 't', ' ', 'r', 'o', 'd', 'e ', 's ', 't ', ' d', 'es', 'le', 're', 'de', ' l', 'on', 'en',
+          'ou', 'nt', ' p', 'te', ' c', ' s', ' e', 'et', 'er', 'la', 'n ', ' a', 'r ', 'ra', 'se', 'ne', 'tr', ' q',
+          'ns', 'oi', ' m', 'eu', 'ri', 's,', 'ti', ' n', ' t', ' f', 'el', 'or', 'so', 'll', 'ss', 'e,', ' v', 'ro',
+          'em', 'si', ' r', 'nd', 'st', 'di', 'l ', 'to', 'e\r', 'sa', ' à', 'da', 'no', 'rs', 'lu', 'li', 'ta', 'rt',
+          's\r', 'om', 'nc', ' j', 'ré', ' b', ' i', ' u', 'su', 'té', 'dé', 'ni', "l'", ' o', 't\r', 'os', 'ec', 'nn'],
+    'd': ['e', 'i', 'a', 'é', 'e ', 'es', 'en', 'ai', 'an', 'et', 'ie', 'er', 'in', 'is', 'il', 'it', 'au', 'a ', 'ar',
+          'eu', 'i ', 'el', 'e,', 'ir', 'ét', 'em', 'e\r', 'é ', 'at', 'av', 'ée', 'as', 'io', 'ec', 'id'],
+    'n': ['t', ' ', 'e', 's', 'd', 'o', 'c', 'i', 'n', 'e ', 's ', 't ', ' d', 'es', 'de', ' l', 'on', 'en', 'ou', 'nt',
+          ' p', 'te', ' c', ' s', ' e', 'et', 'ie', 'er', 'in', 'is', 'n ', ' a', 'il', 'ce', 'it', 'se', 'co', 'ne',
+          'tr', ' q', 'ns', 'oi', ' m', 'ch', 'eu', 'i ', 's,', 'ti', ' n', ' t', ' f', 'el', 'or', 'so', 'ss', 'e,',
+          'ir', ' v', 'em', 'si', ' r', 'nd', 'st', 'di', 'to', 'e\r', 'sa', ' à', 'da', 'no', 'ta', 's\r', 'om', 'nc',
+          ' j', ' b', ' i', ' u', 'ca', 'su', 'io', 'té', 'dé', 'ni', ' o', 't\r', 'os', 'ec', 'nn', 'id'],
+    'e': [' ', 's', 'n', 't', 'r', 'u', 'l', ',', 'm', '\r', 'c', '\r\n', 's ', ', ', 't ', ' d', 'le', 're', ' l',
+          'nt', ' p', 'me', 'te', ' c', ' s', ' e', 'ur', 'la', 'n ', ' a', 'r ', 'ce', 'ra', 'se', 'co', 'ne', 'tr',
+          ' q', 'ns', 'us', 'ue', ' m', 'un', 'ui', 'ch', 'u ', 'ri', 'ma', 's,', 'ti', ' n', ' t', ' f', 'ut', 'so',
+          'll', 'ss', ' v', 'ro', 'si', ' r', 'nd', 'st', 'l ', 'to', 'mo', 'sa', ' à', 'no', 'rs', 'lu', 'li', 'ta',
+          'rt', 'mm', 's\r', 'nc', ' j', 'ré', ' b', ' i', ' u', 'ca', 'su', 'té', 'ni', "l'", ' o', 't\r', 'uv', 'nn',
+          "u'"],
+    '.': [' ', ' d', ' l', ' p', ' c', ' s', ' e', ' a', ' q', ' m', ' n', ' t', ' f', ' v', ' r', ' à', ' j', ' b',
+          ' i', ' u', ' o'], 'f': ['a', 'ai', 'an', 'au', 'a ', 'ar', 'at', 'av', 'as'],
+    'l': ['e', 'a', 'l', ' ', 'u', 'i', "'", 'e ', ' d', 'es', 'le', ' l', 'en', 'ai', ' p', 'an', ' c', ' s', ' e',
+          'ur', 'et', 'ie', 'er', 'in', 'la', 'is', ' a', 'il', 'it', 'au', 'a ', ' q', 'ar', 'us', 'ue', ' m', 'un',
+          'ui', 'u ', 'eu', 'i ', ' n', ' t', ' f', 'ut', 'el', 'll', 'e,', 'ir', ' v', 'em', ' r', 'l ', 'e\r', 'at',
+          ' à', 'lu', 'li', 'av', "'a", 'as', ' j', ' b', ' i', "'e", ' u', 'io', "l'", ' o', 'uv', 'ec', "'i", 'id',
+          "u'"],
+    'm': ['e', 'a', 'o', 'm', 'e ', 'es', 'on', 'en', 'ou', 'ai', 'an', 'me', 'et', 'er', 'au', 'a ', 'ar', 'oi', 'eu',
+          'ma', 'el', 'or', 'e,', 'em', 'mo', 'e\r', 'at', 'av', 'as', 'mm', 'om', 'os', 'ec'],
+    't': [' ', 'e', 'r', 'i', 'o', 'a', 'é', '\r', 'e ', '\r\n', ' d', 'es', 're', ' l', 'on', 'en', 'ou', 'ai', ' p',
+          'an', ' c', ' s', ' e', 'et', 'ie', 'er', 'in', 'is', ' a', 'r ', 'il', 'ra', 'it', 'au', 'a ', ' q', 'ar',
+          'oi', ' m', 'eu', 'ri', 'i ', ' n', ' t', ' f', 'el', 'or', 'e,', 'ir', 'ét', ' v', 'ro', 'em', ' r', 'e\r',
+          'é ', 'at', ' à', 'rs', 'av', 'ée', 'rt', 'as', 'om', ' j', 'ré', ' b', ' i', ' u', 'io', ' o', 'os', 'ec',
+          'id'], 'b': ['l', 'le', 'la', 'll', 'l ', 'lu', 'li', "l'"],
+    'p': ['a', 'r', 'o', 'e', 'l', 'e ', 'es', 'le', 're', 'on', 'en', 'ou', 'ai', 'an', 'et', 'er', 'la', 'r ', 'ra',
+          'au', 'a ', 'ar', 'oi', 'eu', 'ri', 'el', 'or', 'll', 'e,', 'ro', 'em', 'l ', 'e\r', 'at', 'rs', 'lu', 'li',
+          'av', 'rt', 'as', 'om', 'ré', "l'", 'os', 'ec'],
+    's': [' ', 'e', ',', 'o', 's', 'i', 't', 'a', '\r', 'u', 'e ', '\r\n', 's ', ', ', 't ', ' d', 'es', ' l', 'on',
+          'en', 'ou', 'ai', ' p', 'an', 'te', ' c', ' s', ' e', 'ur', 'et', 'ie', 'er', 'in', 'is', ' a', 'il', 'it',
+          'se', 'au', 'a ', 'tr', ' q', 'ar', 'us', 'oi', 'ue', ' m', 'un', 'ui', 'u ', 'eu', 'i ', 's,', 'ti', ' n',
+          ' t', ' f', 'ut', 'el', 'or', 'so', 'ss', 'e,', 'ir', ' v', 'em', 'si', ' r', 'st', 'to', 'e\r', 'sa', 'at',
+          ' à', 'ta', 'av', 'as', 's\r', 'om', ' j', ' b', ' i', ' u', 'su', 'io', 'té', ' o', 't\r', 'os', 'uv', 'ec',
+          'id', "u'"],
+    'v': ['e', 'o', 'e ', 'es', 'on', 'en', 'ou', 'et', 'er', 'oi', 'eu', 'el', 'or', 'e,', 'em', 'e\r', 'om', 'os',
+          'ec'],
+    'o': ['n', 'u', 'i', 'r', 'm', 's', 's ', 're', 'nt', 'me', 'ur', 'ie', 'in', 'is', 'n ', 'r ', 'il', 'ra', 'it',
+          'se', 'ne', 'ns', 'us', 'ue', 'un', 'ui', 'u ', 'ri', 'ma', 'i ', 's,', 'ut', 'so', 'ss', 'ir', 'ro', 'si',
+          'nd', 'st', 'mo', 'sa', 'no', 'rs', 'rt', 'mm', 's\r', 'nc', 'ré', 'su', 'io', 'ni', 'uv', 'nn', 'id', "u'"],
+    '\n': ['\r', '\r\n'], 'h': ['o', 'on', 'ou', 'oi', 'or', 'om', 'os'],
+    "'": ['a', 'e', 'i', 'e ', 'es', 'en', 'ai', 'an', 'et', 'ie', 'er', 'in', 'is', 'il', 'it', 'au', 'a ', 'ar', 'eu',
+          'i ', 'el', 'e,', 'ir', 'em', 'e\r', 'at', 'av', 'as', 'io', 'ec', 'id'],
+    'j': ['e', 'e ', 'es', 'en', 'et', 'er', 'eu', 'el', 'e,', 'em', 'e\r', 'ec'],
+    ',': [' ', ' d', ' l', ' p', ' c', ' s', ' e', ' a', ' q', ' m', ' n', ' t', ' f', ' v', ' r', ' à', ' j', ' b',
+          ' i', ' u', ' o'],
+    'à': [' ', ' d', ' l', ' p', ' c', ' s', ' e', ' a', ' q', ' m', ' n', ' t', ' f', ' v', ' r', ' à', ' j', ' b',
+          ' i', ' u', ' o'],
+    ';': [' ', ' d', ' l', ' p', ' c', ' s', ' e', ' a', ' q', ' m', ' n', ' t', ' f', ' v', ' r', ' à', ' j', ' b',
+          ' i', ' u', ' o'], 'q': ['u', 'ur', 'us', 'ue', 'un', 'ui', 'u ', 'ut', 'uv', "u'"], '\r': ['\n', '\n\r']}
 
 
 #### ----- MÉTHODES DE DÉCHIFFREMENT ----- ####
 
 # Comparer la vraie clé de test K avec la clé prédite (Debug)
+
+
 def compare_K(K, K_pred):
     inverted_K = {value: key for key, value in K.items()}
     sorted_K = {}
@@ -338,38 +419,42 @@ def compare_K(K, K_pred):
         if sorted_K[code] != symbol:
             nb_errors += 1
         else:
-            print("Succès! {0} = {1}".format(code, symbol))
+            print(f"Succès! {code} = {symbol}")
 
     print("K: ", sorted_K)
     print("Prédiction de K: ", K_pred)
-    print("Nombre d'erreurs de substitution: {0}/{1} ({2}%)".format(nb_errors, len(K_pred),
-                                                                    nb_errors / len(K_pred) * 100))
+    print(f"Nombre d'erreurs de substitution: {nb_errors}/{len(K_pred)} ({nb_errors / len(K_pred) * 100}%)")
 
 
 # Calculer un score au message M
 def score_message(M, errors):
     score = 0.0
 
-    for i in sorted_trigrams:
-        score += M.count(i) * sorted_trigrams[i]
+    for trigram, freq in sorted_trigrams.items():
+        score += M.count(trigram) * freq
 
     return score - len(errors)
 
 
 # Échanger deux symboles dans la clé
-def swap_symbols(K_pred, errors, distance):
-    i = 0
+def swap_symbols(K_pred, errors, distance=32, use_errors=True):
     keys = list(K_pred.keys())
 
-    if len(errors) > 0:
-        chosen_swap = rnd.choice(list(errors))
-        i = keys.index(chosen_swap)
+    if use_errors and len(errors) > 1:
+        i = keys.index(rnd.choice(list(errors)))
+
+        eligible_errors = [e for e in errors if
+                           max(i - distance, 0) <= keys.index(e) <= min(i + distance, len(keys) - 1)]
+
+        if eligible_errors:
+            j = keys.index(rnd.choice(eligible_errors))
+        else:
+            j = keys.index(rnd.choice(list(errors)))
     else:
         i = rnd.randint(0, len(keys) - 1)
 
     j = rnd.randint(max(i - distance, 0), min(i + distance, len(keys) - 1))
     K_pred[keys[i]], K_pred[keys[j]] = K_pred[keys[j]], K_pred[keys[i]]
-
     return K_pred
 
 
@@ -389,37 +474,39 @@ def decrypt_with_mapping(chunks, K_pred):
 
 
 # Technique de MCMC (Markov Chain Monte Carlo)
-def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.99):
+def mcmc(chunks, K_pred, max_iterations=10000, initial_temp=1.0, cooling_rate=0.99, allow_non_errors=False):
+
     # Initialiser les variables de base
     current_K = K_pred.copy()
-    original_message, errors = decrypt_with_mapping(chunks, K_pred)
-    best_score = score_message(original_message, errors)
+    decrypted_message, errors = decrypt_with_mapping(chunks, K_pred)
+    lowest_conflicts = len(errors)  # TODO: REMOVE! DEBUG
+    best_score = score_message(decrypted_message, errors)
     best_K = current_K.copy()
+    temp = initial_temp
 
     for iteration in range(max_iterations):
-        temp = initial_temp * (cooling_rate ** iteration)
+        # Mettre à jour la température
+        temp = max(temp * (cooling_rate if iteration % 100 != 0 else 0.95), 0.01)
 
         # Échanger aléatoirement certains symboles
-        new_mapping = swap_symbols(current_K.copy(), errors, 16)
+        new_mapping = swap_symbols(current_K.copy(), errors, 256, False)
 
         # Évaluer le nouveau message obtenu
         decrypted_message, errors = decrypt_with_mapping(chunks, new_mapping)
         score = score_message(decrypted_message, errors)
 
-        print("Iteration {0}, Best Score: {1}, Current Score: {2} Conflicts: {3}".format(iteration, best_score, score, len(errors)))  # TODO: REMOVE! DEBUG
+        print(
+            f"Iteration {iteration}, Temp: {temp}, Best Score: {best_score}, Conflicts: {lowest_conflicts}")
+        # TODO: REMOVE! DEBUG
 
         # Continuer à itérer avec le meilleur score obtenu
         if score >= best_score:
             best_score = score
             best_K = new_mapping.copy()
             current_K = new_mapping.copy()
-        else:
-            delta = score - best_score
-            acceptance_probability = math.exp(delta / temp)
-            if rnd.random() < acceptance_probability:
-                best_score = score
-                best_K = new_mapping.copy()
-                current_K = new_mapping.copy()
+            lowest_conflicts = len(errors)  # TODO: REMOVE! DEBUG
+        elif math.exp((score - best_score) / temp) > rnd.random():
+            current_K = new_mapping.copy()
 
     return decrypt_with_mapping(chunks, best_K), best_K
 
@@ -438,10 +525,11 @@ def decrypt(C):
     print(mapping)
 
     # Décoder le message avec la technique MCMC
-    M, best_mapping = mcmc(chunks, mapping, 10000)
+    M, best_mapping = mcmc(chunks, mapping, 100000)
     compare_K(K, best_mapping)  # TODO: REMOVE! DEBUG FUNCTION
 
     return M
+
 
 # TODO: REMOVE! DEBUG FUNCTIONS
 M = generate_corpus()[:120000]
@@ -450,3 +538,5 @@ D = decrypt(C)
 
 # print("M: ", M)
 # print("D: ", D)
+
+# print(find_impossible_neighbors())
