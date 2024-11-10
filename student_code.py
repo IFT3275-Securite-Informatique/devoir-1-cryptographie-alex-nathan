@@ -347,19 +347,26 @@ def compare_K(K, K_pred):
 
 
 # Calculer un score au message M
-def score_message(M):
+def score_message(M, errors):
     score = 0.0
 
     for i in sorted_trigrams:
         score += M.count(i) * sorted_trigrams[i]
 
-    return score
+    return score - len(errors)
 
 
 # Échanger deux symboles dans la clé
-def swap_symbols(K_pred, distance):
+def swap_symbols(K_pred, errors, distance):
+    i = 0
     keys = list(K_pred.keys())
-    i = rnd.randint(0, len(keys) - 1)
+
+    if len(errors) > 0:
+        chosen_swap = rnd.choice(list(errors))
+        i = keys.index(chosen_swap)
+    else:
+        i = rnd.randint(0, len(keys) - 1)
+
     j = rnd.randint(max(i - distance, 0), min(i + distance, len(keys) - 1))
     K_pred[keys[i]], K_pred[keys[j]] = K_pred[keys[j]], K_pred[keys[i]]
 
@@ -368,26 +375,38 @@ def swap_symbols(K_pred, distance):
 
 # Déchiffrer un texte avec la clé prédite
 def decrypt_with_mapping(chunks, K_pred):
-    return ''.join([K_pred[chunk] for chunk in chunks])
+    decrypted_chunks = [K_pred[chunk] for chunk in chunks]
+    errors = set()
+
+    # Trouver toutes les combinaisons impossibles présentement dans le texte
+    for i in range(len(decrypted_chunks) - 1):
+        if decrypted_chunks[i] in impossible_neighbors:
+            if decrypted_chunks[i + 1] in impossible_neighbors[decrypted_chunks[i]]:
+                errors.add(chunks[i])
+                errors.add(chunks[i + 1])
+
+    return ''.join(decrypted_chunks), errors
 
 
 # Technique de MCMC (Markov Chain Monte Carlo)
 def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.99):
     # Initialiser les variables de base
     current_K = K_pred.copy()
-    best_score = score_message(decrypt_with_mapping(chunks, K_pred))
+    original_message, errors = decrypt_with_mapping(chunks, K_pred)
+    best_score = score_message(original_message, errors)
     best_K = current_K.copy()
 
     for iteration in range(max_iterations):
         temp = initial_temp * (cooling_rate ** iteration)
-        print("Itération {0}, Score: {1}, Temp: {2}".format(iteration, best_score, temp))  # TODO: REMOVE! DEBUG
 
         # Échanger aléatoirement certains symboles
-        new_mapping = swap_symbols(current_K.copy(), 16)
+        new_mapping = swap_symbols(current_K.copy(), errors, 16)
 
         # Évaluer le nouveau message obtenu
-        decrypted_message = decrypt_with_mapping(chunks, new_mapping)
-        score = score_message(decrypted_message)
+        decrypted_message, errors = decrypt_with_mapping(chunks, new_mapping)
+        score = score_message(decrypted_message, errors)
+
+        print("Iteration {0}, Best Score: {1}, Current Score: {2} Conflicts: {3}".format(iteration, best_score, score, len(errors)))  # TODO: REMOVE! DEBUG
 
         # Continuer à itérer avec le meilleur score obtenu
         if score >= best_score:
@@ -425,9 +444,9 @@ def decrypt(C):
     return M
 
 # TODO: REMOVE! DEBUG FUNCTIONS
-# M = generate_corpus()[:120000]
-# C = chiffrer(M, K, symbols)
-# D = decrypt(C)
+M = generate_corpus()[:120000]
+C = chiffrer(M, K, symbols)
+D = decrypt(C)
 
 # print("M: ", M)
 # print("D: ", D)
