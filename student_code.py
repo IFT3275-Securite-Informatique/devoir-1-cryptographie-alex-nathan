@@ -9,6 +9,22 @@ import re
 import random as rnd
 import math
 
+# Liste de symboles fixés
+symbols = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y', '%', 'N', 'B', 'V', '\ufeff', 'Ê', '?',
+           '’', 'i', ':', 's', 'C', 'â', 'ï', 'W', 'y', 'p', 'D', '—', '«', 'º', 'A', '3', 'n', '0', 'q', '4', 'e',
+           'T', 'È', '$', 'U', 'v', '»', 'l', 'P', 'X', 'Z', 'À', 'ç', 'u', '…', 'î', 'L', 'k', 'E', 'R', '2', '_',
+           '8', 'é', 'O', 'Î', '‘', 'a', 'F', 'H', 'c', '[', '(', "'", 'è', 'I', '/', '!', ' ', '°', 'S', '•', '#',
+           'x', 'à', 'g', '*', 'Q', 'w', '1', 'û', '7', 'G', 'm', '™', 'K', 'z', '\n', 'o', 'ù', ',', 'r', ']', '.',
+           'M', 'Ç', '“', 'h', '-', 'f', 'ë', '6', ';', 'd', 'ô', 'e ', 's ', 't ', 'es', ' d', '\r\n', 'en', 'qu',
+           ' l', 're', ' p', 'de', 'le', 'nt', 'on', ' c', ', ', ' e', 'ou', ' q', ' s', 'n ', 'ue', 'an', 'te', ' a',
+           'ai', 'se', 'it', 'me', 'is', 'oi', 'r ', 'er', ' m', 'ce', 'ne', 'et', 'in', 'ns', ' n', 'ur', 'i ', 'a ',
+           'eu', 'co', 'tr', 'la', 'ar', 'ie', 'ui', 'us', 'ut', 'il', ' t', 'pa', 'au', 'el', 'ti', 'st', 'un', 'em',
+           'ra', 'e,', 'so', 'or', 'l ', ' f', 'll', 'nd', ' j', 'si', 'ir', 'e\r', 'ss', 'u ', 'po', 'ro', 'ri', 'pr',
+           's,', 'ma', ' v', ' i', 'di', ' r', 'vo', 'pe', 'to', 'ch', '. ', 've', 'nc', 'om', ' o', 'je', 'no', 'rt',
+           'à ', 'lu', "'e", 'mo', 'ta', 'as', 'at', 'io', 's\r', 'sa', "u'", 'av', 'os', ' à', ' u', "l'", "'a", 'rs',
+           'pl', 'é ', '; ', 'ho', 'té', 'ét', 'fa', 'da', 'li', 'su', 't\r', 'ée', 'ré', 'dé', 'ec', 'nn', 'mm', "'i",
+           'ca', 'uv', '\n\r', 'id', ' b', 'ni', 'bl']
+
 
 #### ----- MÉTHODES DE TRAITEMENT DE TEXTE (PRÉ-UTILISÉS) ----- ####
 
@@ -52,13 +68,13 @@ def generate_corpus():
 
 
 # Diviser un texte en groupe de triplets de caractères
-def cut_string_into_triplets(text):
+def cut_string_into_parts(text, size_parts):
     triplets = []
 
-    for i in range(0, len(text) - 1, 3):
-        triplets.append(text[i:i + 3])
+    for i in range(0, len(text) - 1, size_parts):
+        triplets.append(text[i:i + size_parts])
 
-    if len(text) % 3 != 0:
+    if len(text) % size_parts != 0:
         triplets.append(text[-1] + '_')
 
     return triplets
@@ -94,13 +110,32 @@ def find_symbol_frequency():
     return sorted_symbols
 
 
+# Obtenir un dictionnaire des bi-caractères les plus communs (non inclus parmi les symboles)
+def find_bigram_frequency(nb_bigrams):
+    french_txt = generate_corpus()[:]
+
+    bigrams = Counter(cut_string_into_parts(french_txt, 2)).most_common(nb_bigrams)
+    bigrams = [(word, count / (len(french_txt) // 2)) for word, count in bigrams if word not in symbols]
+    return dict(bigrams)
+
+
 # Obtenir un dictionnaire des tri-caractères les plus communs triée par ordre de fréquence
 def find_trigram_frequency(nb_trigrams):
     french_txt = generate_corpus()[:]
 
-    trigrams = Counter(cut_string_into_triplets(french_txt)).most_common(nb_trigrams)
-    trigrams = [(trigram, count / (len(french_txt) // 3)) for trigram, count in trigrams]
+    trigrams = Counter(cut_string_into_parts(french_txt, 3)).most_common(nb_trigrams)
+    trigrams = [(word, count / (len(french_txt) // 3)) for word, count in trigrams]
     return dict(trigrams)
+
+
+# Obtenir un dictionnaire des mots les plus communs triée par ordre de fréquence (non utilisé au final)
+def find_word_frequency(nb_words):
+    french_txt = generate_corpus()[:]
+
+    words = [word for word in french_txt.split() if len(word) > 2]
+    words = Counter(words).most_common(nb_words)
+    words = [(word, count / (len(french_txt) // 3)) for word, count in words]
+    return dict(words)
 
 
 # Obtenir un dictionnaire des voisins impossibles
@@ -121,22 +156,6 @@ def find_impossible_neighbors():
 
 
 #### ----- VARIABLES GLOBALES (PRÉ-GÉNÉRÉES) ----- ####
-
-# Liste de symboles fixés
-symbols = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y', '%', 'N', 'B', 'V', '\ufeff', 'Ê', '?',
-           '’', 'i', ':', 's', 'C', 'â', 'ï', 'W', 'y', 'p', 'D', '—', '«', 'º', 'A', '3', 'n', '0', 'q', '4', 'e',
-           'T', 'È', '$', 'U', 'v', '»', 'l', 'P', 'X', 'Z', 'À', 'ç', 'u', '…', 'î', 'L', 'k', 'E', 'R', '2', '_',
-           '8', 'é', 'O', 'Î', '‘', 'a', 'F', 'H', 'c', '[', '(', "'", 'è', 'I', '/', '!', ' ', '°', 'S', '•', '#',
-           'x', 'à', 'g', '*', 'Q', 'w', '1', 'û', '7', 'G', 'm', '™', 'K', 'z', '\n', 'o', 'ù', ',', 'r', ']', '.',
-           'M', 'Ç', '“', 'h', '-', 'f', 'ë', '6', ';', 'd', 'ô', 'e ', 's ', 't ', 'es', ' d', '\r\n', 'en', 'qu',
-           ' l', 're', ' p', 'de', 'le', 'nt', 'on', ' c', ', ', ' e', 'ou', ' q', ' s', 'n ', 'ue', 'an', 'te', ' a',
-           'ai', 'se', 'it', 'me', 'is', 'oi', 'r ', 'er', ' m', 'ce', 'ne', 'et', 'in', 'ns', ' n', 'ur', 'i ', 'a ',
-           'eu', 'co', 'tr', 'la', 'ar', 'ie', 'ui', 'us', 'ut', 'il', ' t', 'pa', 'au', 'el', 'ti', 'st', 'un', 'em',
-           'ra', 'e,', 'so', 'or', 'l ', ' f', 'll', 'nd', ' j', 'si', 'ir', 'e\r', 'ss', 'u ', 'po', 'ro', 'ri', 'pr',
-           's,', 'ma', ' v', ' i', 'di', ' r', 'vo', 'pe', 'to', 'ch', '. ', 've', 'nc', 'om', ' o', 'je', 'no', 'rt',
-           'à ', 'lu', "'e", 'mo', 'ta', 'as', 'at', 'io', 's\r', 'sa', "u'", 'av', 'os', ' à', ' u', "l'", "'a", 'rs',
-           'pl', 'é ', '; ', 'ho', 'té', 'ét', 'fa', 'da', 'li', 'su', 't\r', 'ée', 'ré', 'dé', 'ec', 'nn', 'mm', "'i",
-           'ca', 'uv', '\n\r', 'id', ' b', 'ni', 'bl']
 
 # Clé pour tester
 K = gen_key(symbols)  # TODO: REMOVE WHEN TESTS ARE DONE
@@ -227,7 +246,7 @@ sorted_symbols = [('e ', 0.033419467206536324), ('\r\n', 0.032038030032882386), 
                   ('Î', 7.643510735820395e-07), ('\r', 0.0), ('”', 0.0), ('\ufeff', 0.0), ('$', 0.0), ('‘', 0.0),
                   ('•', 0.0), ('#', 0.0), ('™', 0.0), ('“', 0.0)]
 
-# Dictionnaire 256 tri-caractères ordonnés selon leurs fréquences dans le corpus
+# Dictionnaire de 256 tri-caractères ordonnés selon leurs fréquences dans le corpus
 sorted_trigrams = {' de': 0.010197210270740862, 'es ': 0.009518466344467128, 'de ': 0.0075961229046265415,
                    ' qu': 0.006120924956756827, 'ent': 0.006016973184264454, 'nt ': 0.005965761649286592,
                    ' le': 0.005822827962109579, 'le ': 0.004878089794458301, 'que': 0.004701524651474931,
@@ -439,6 +458,7 @@ def score_message(M, errors):
 # Échanger deux symboles dans la clé
 def swap_symbols(K_pred, errors, distance=32, use_errors=True):
     keys = list(K_pred.keys())
+    i, j = 0, 0
 
     if use_errors and len(errors) > 1:
         i = keys.index(rnd.choice(list(errors)))
@@ -474,8 +494,7 @@ def decrypt_with_mapping(chunks, K_pred):
 
 
 # Technique de MCMC (Markov Chain Monte Carlo)
-def mcmc(chunks, K_pred, max_iterations=10000, initial_temp=1.0, cooling_rate=0.99, allow_non_errors=False):
-
+def mcmc(chunks, K_pred, max_iterations=10000, initial_temp=1.0, cooling_rate=0.99):
     # Initialiser les variables de base
     current_K = K_pred.copy()
     decrypted_message, errors = decrypt_with_mapping(chunks, K_pred)
@@ -489,7 +508,7 @@ def mcmc(chunks, K_pred, max_iterations=10000, initial_temp=1.0, cooling_rate=0.
         temp = max(temp * (cooling_rate if iteration % 100 != 0 else 0.95), 0.01)
 
         # Échanger aléatoirement certains symboles
-        new_mapping = swap_symbols(current_K.copy(), errors, 256, False)
+        new_mapping = swap_symbols(current_K.copy(), errors, 32, False)
 
         # Évaluer le nouveau message obtenu
         decrypted_message, errors = decrypt_with_mapping(chunks, new_mapping)
@@ -525,7 +544,7 @@ def decrypt(C):
     print(mapping)
 
     # Décoder le message avec la technique MCMC
-    M, best_mapping = mcmc(chunks, mapping, 100000)
+    M, best_mapping = mcmc(chunks, mapping, 10000)
     compare_K(K, best_mapping)  # TODO: REMOVE! DEBUG FUNCTION
 
     return M
@@ -536,7 +555,6 @@ M = generate_corpus()[:120000]
 C = chiffrer(M, K, symbols)
 D = decrypt(C)
 
-# print("M: ", M)
-# print("D: ", D)
+print("M: ", M)
+print("D: ", D)
 
-# print(find_impossible_neighbors())
