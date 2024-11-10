@@ -327,9 +327,11 @@ def score_message(M):
 # Échanger deux symboles dans la clé
 def swap_symbols(K_pred, distance):
     keys = list(K_pred.keys())
-    i = rnd.randint(0, len(keys) - 1)
-    j = rnd.randint(max(i - distance, 0), min(i + distance, len(keys) - 1))
-    K_pred[keys[i]], K_pred[keys[j]] = K_pred[keys[j]], K_pred[keys[i]]
+    for _ in range(3):
+        i = rnd.randint(0, len(keys) - 1)
+        j = rnd.randint(max(i - distance, 0), min(i + distance, len(keys) - 1))
+        K_pred[keys[i]], K_pred[keys[j]] = K_pred[keys[j]], K_pred[keys[i]]
+
     return K_pred
 
 
@@ -350,7 +352,7 @@ def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.9
         print("Itération {0}, Score: {1}, Temp: {2}".format(iteration, best_score, temp))  # TODO: REMOVE! DEBUG
 
         # Échanger aléatoirement certains symboles
-        new_mapping = swap_symbols(current_K.copy(), 16)
+        new_mapping = swap_symbols(current_K.copy(), 32)
 
         # Évaluer le nouveau message obtenu
         decrypted_message = decrypt_with_mapping(chunks, new_mapping)
@@ -386,8 +388,8 @@ def decrypt(C):
     print(mapping)
 
     # Décoder le message avec la technique MCMC
-    M, best_mapping = mcmc(chunks, mapping, 20000)
-    compare_K(K, mapping)  # TODO: REMOVE! DEBUG FUNCTION
+    M, best_mapping = mcmc(chunks, mapping, 10000)
+    compare_K(K, best_mapping)  # TODO: REMOVE! DEBUG FUNCTION
 
     return M
 
