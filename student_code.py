@@ -4,6 +4,118 @@ import re
 import random as rnd
 import math
 
+
+#### ----- MÉTHODES DE TRAITEMENT DE TEXTE (PRÉ-UTILISÉS) ----- ####
+
+# Générer un corpus de langue française
+def generate_corpus():
+    # Liste d'URLs pour le Corpus
+    url_list = ["https://www.gutenberg.org/ebooks/13846.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/4650.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/69794.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/39331.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/67924.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/72071.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/55639.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/66894.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/11046.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/67867.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/55637.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/55766.txt.utf-8",
+                "https://www.gutenberg.org/ebooks/71208.txt.utf-8"]
+
+    # Ajouter le contenu des URLs dans le Corpus
+    corpus = ""
+
+    for (i, url_i) in enumerate(url_list):
+        # Retire la partie anglophone au début de chaque texte
+        text = load_text_from_web(url_i).strip().split(" ***")[1]
+        corpus = corpus + text
+
+    # Retirer les symboles sur-représentés
+    corpus = re.sub(r' {2,}', '', corpus)
+    corpus = re.sub(r'_{2,}', '', corpus)
+    corpus = re.sub(r'\.{4,}', '', corpus)
+    corpus = re.sub(r'\*{2,}', '', corpus)
+
+    # Retirer les symboles non-présents dans la liste (principalement pour les tests)
+    corpus = re.sub(r'[Œœ\xa0ÔË&üανάγκη}>æ=§|<+Ûòβοῦςπόρ′]', '', corpus)
+
+    return corpus
+
+
+# Diviser un texte en groupe de triplets de caractères
+def cut_string_into_triplets(text):
+    triplets = []
+
+    for i in range(0, len(text) - 1, 3):
+        triplets.append(text[i:i + 3])
+
+    if len(text) % 3 != 0:
+        triplets.append(text[-1] + '_')
+
+    return triplets
+
+
+# Obtenir la liste de symbole triée par ordre de fréquence
+def find_symbol_frequency():
+    french_txt = generate_corpus()[:]
+
+    # Compter les fréquences
+    frequencies = {symbol: 0 for symbol in symbols}
+
+    i = 0
+
+    while i < len(french_txt):
+        # Vérifier les paires de caractères
+        if i + 1 < len(french_txt):
+            pair = french_txt[i] + french_txt[i + 1]
+            if pair in frequencies:
+                frequencies[pair] += 1
+                i += 2  # Sauter les deux caractères utilisés
+                continue
+
+        # Vérifier le caractère seul
+        if french_txt[i] in frequencies:
+            frequencies[french_txt[i]] += 1
+
+        i += 1
+
+    frequencies = {symbol: count / (len(french_txt) // len(symbol)) for symbol, count in frequencies.items()}
+    sorted_symbols = sorted(frequencies.items(), key=lambda x: x[1], reverse=True)
+
+    return sorted_symbols
+
+
+# Obtenir un dictionnaire des tri-caractères les plus communs triée par ordre de fréquence
+def find_trigram_frequency(nb_trigrams):
+    french_txt = generate_corpus()[:]
+
+    trigrams = Counter(cut_string_into_triplets(french_txt)).most_common(nb_trigrams)
+    trigrams = [(trigram, count / (len(french_txt) // 3)) for trigram, count in trigrams]
+    return dict(trigrams)
+
+
+# Obtenir un dictionnaire des voisins impossibles
+def find_impossible_neighbors():
+    one_char_symbols = [symbol for symbol, _ in sorted_symbols if len(symbol) == 1]
+    two_char_symbols = [symbol for symbol, _ in sorted_symbols if len(symbol) == 2]
+
+    impossible_neighbors = {}
+
+    for symbol in one_char_symbols:
+        neighbors = [word[1] for word in two_char_symbols if word.startswith(symbol)]
+
+        if len(neighbors) > 0:
+            impossible_neighbors[symbol] = neighbors
+
+    return impossible_neighbors
+
+
+#### ----- VARIABLES GLOBALES (PRÉ-GÉNÉRÉES) ----- ####
+
 # Liste de symboles fixés
 symbols = ['b', 'j', '\r', 'J', '”', ')', 'Â', 'É', 'ê', '5', 't', '9', 'Y', '%', 'N', 'B', 'V', '\ufeff', 'Ê', '?',
            '’', 'i', ':', 's', 'C', 'â', 'ï', 'W', 'y', 'p', 'D', '—', '«', 'º', 'A', '3', 'n', '0', 'q', '4', 'e',
@@ -109,7 +221,7 @@ sorted_symbols = [('e ', 0.033419467206536324), ('\r\n', 0.032038030032882386), 
                   ('Î', 7.643510735820395e-07), ('\r', 0.0), ('”', 0.0), ('\ufeff', 0.0), ('$', 0.0), ('‘', 0.0),
                   ('•', 0.0), ('#', 0.0), ('™', 0.0), ('“', 0.0)]
 
-# Liste de 256 tri-caractères ordonnés selon leurs fréquences dans le corpus
+# Dictionnaire 256 tri-caractères ordonnés selon leurs fréquences dans le corpus
 sorted_trigrams = {' de': 0.010197210270740862, 'es ': 0.009518466344467128, 'de ': 0.0075961229046265415,
                    ' qu': 0.006120924956756827, 'ent': 0.006016973184264454, 'nt ': 0.005965761649286592,
                    ' le': 0.005822827962109579, 'le ': 0.004878089794458301, 'que': 0.004701524651474931,
@@ -197,103 +309,23 @@ sorted_trigrams = {' de': 0.010197210270740862, 'es ': 0.009518466344467128, 'de
                    ' lu': 0.0008132697494991588, 'pri': 0.0008132697494991588, 'vou': 0.0008071549393525486,
                    'mes': 0.0008010401292059384}
 
-
-# one_char_symbols = [(symbol, count) for symbol, count in sorted_symbols if len(symbol) == 1]
-# two_char_symbols = [(symbol, count) for symbol, count in sorted_symbols if len(symbol) == 2]
-
-
-# Générer un corpus de langue française
-def generate_corpus():
-    # Liste d'URLs pour le Corpus
-    url_list = ["https://www.gutenberg.org/ebooks/13846.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/4650.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/69794.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/39331.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/67924.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/72071.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/55639.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/66894.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/15212.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/11046.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/67867.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/55637.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/55766.txt.utf-8",
-                "https://www.gutenberg.org/ebooks/71208.txt.utf-8"]
-
-    # Ajouter le contenu des URLs dans le Corpus
-    corpus = ""
-
-    for (i, url_i) in enumerate(url_list):
-        # Retire la partie anglophone au début de chaque texte
-        text = load_text_from_web(url_i).strip().split(" ***")[1]
-        corpus = corpus + text
-
-    # Retirer les symboles sur-représentés
-    corpus = re.sub(r' {2,}', '', corpus)
-    corpus = re.sub(r'_{2,}', '', corpus)
-    corpus = re.sub(r'\.{4,}', '', corpus)
-    corpus = re.sub(r'\*{2,}', '', corpus)
-
-    # Retirer les symboles non-présents dans la liste (principalement pour les tests)
-    corpus = re.sub(r'[Œœ\xa0ÔË&üανάγκη}>æ=§|<+Ûòβοῦςπόρ′]', '', corpus)
-
-    return corpus
+# Dictionnaire des combinaisons de un caractère impossibles à réaliser
+impossible_neighbors = {
+    ' ': ['d', 'l', 'p', 'c', 's', 'e', 'a', 'q', 'm', 'n', 't', 'f', 'v', 'r', 'à', 'j', 'b', 'i', 'u', 'o'],
+    'a': ['i', 'n', 'u', ' ', 'r', 't', 'v', 's'], 'é': ['t', ' ', 'e'], 'c': ['e', 'o', 'h', 'a'],
+    'r': ['e', ' ', 'a', 'i', 'o', 's', 't', 'é'], 'u': ['r', 's', 'e', 'n', 'i', ' ', 't', 'v', "'"],
+    'i': ['e', 'n', 's', 'l', 't', ' ', 'r', 'o', 'd'], 'd': ['e', 'i', 'a', 'é'],
+    'n': ['t', ' ', 'e', 's', 'd', 'o', 'c', 'i', 'n'], 'e': [' ', 's', 'n', 't', 'r', 'u', 'l', ',', 'm', '\r', 'c'],
+    '.': [' '], 'f': ['a'], 'l': ['e', 'a', 'l', ' ', 'u', 'i', "'"], 'm': ['e', 'a', 'o', 'm'],
+    't': [' ', 'e', 'r', 'i', 'o', 'a', 'é', '\r'], 'b': ['l'], 'p': ['a', 'r', 'o', 'e', 'l'],
+    's': [' ', 'e', ',', 'o', 's', 'i', 't', 'a', '\r', 'u'], 'v': ['e', 'o'], 'o': ['n', 'u', 'i', 'r', 'm', 's'],
+    '\n': ['\r'], 'h': ['o'], "'": ['a', 'e', 'i'], 'j': ['e'], ',': [' '], 'à': [' '], ';': [' '], 'q': ['u'],
+    '\r': ['\n']}
 
 
-# Diviser un texte en groupe de triplets de caractères
-def cut_string_into_triplets(text):
-    triplets = []
+#### ----- MÉTHODES DE DÉCHIFFREMENT ----- ####
 
-    for i in range(0, len(text) - 1, 3):
-        triplets.append(text[i:i + 3])
-
-    if len(text) % 3 != 0:
-        triplets.append(text[-1] + '_')
-
-    return triplets
-
-
-# Obtenir la liste de symbole triée par ordre de fréquence
-def find_symbol_frequency():
-    french_txt = generate_corpus()[:]
-
-    # Compter les fréquences
-    frequencies = {symbol: 0 for symbol in symbols}
-
-    i = 0
-
-    while i < len(french_txt):
-        # Vérifier les paires de caractères
-        if i + 1 < len(french_txt):
-            pair = french_txt[i] + french_txt[i + 1]
-            if pair in frequencies:
-                frequencies[pair] += 1
-                i += 2  # Sauter les deux caractères utilisés
-                continue
-
-        # Vérifier le caractère seul
-        if french_txt[i] in frequencies:
-            frequencies[french_txt[i]] += 1
-
-        i += 1
-
-    frequencies = {symbol: count / (len(french_txt) // len(symbol)) for symbol, count in frequencies.items()}
-    sorted_symbols = sorted(frequencies.items(), key=lambda x: x[1], reverse=True)
-
-    return sorted_symbols
-
-
-# Obtenir la liste des tri-caractères les plus communs triée par ordre de fréquence
-def find_trigram_frequency(nb_trigrams):
-    french_txt = generate_corpus()[:]
-
-    trigrams = Counter(cut_string_into_triplets(french_txt)).most_common(nb_trigrams)
-    trigrams = [(trigram, count / (len(french_txt) // 3)) for trigram, count in trigrams]
-    return dict(trigrams)
-
-
-# Comparer la vraie clé de test K avec la clé prédite (Test seulement)
+# Comparer la vraie clé de test K avec la clé prédite (Debug)
 def compare_K(K, K_pred):
     inverted_K = {value: key for key, value in K.items()}
     sorted_K = {}
@@ -327,10 +359,9 @@ def score_message(M):
 # Échanger deux symboles dans la clé
 def swap_symbols(K_pred, distance):
     keys = list(K_pred.keys())
-    for _ in range(3):
-        i = rnd.randint(0, len(keys) - 1)
-        j = rnd.randint(max(i - distance, 0), min(i + distance, len(keys) - 1))
-        K_pred[keys[i]], K_pred[keys[j]] = K_pred[keys[j]], K_pred[keys[i]]
+    i = rnd.randint(0, len(keys) - 1)
+    j = rnd.randint(max(i - distance, 0), min(i + distance, len(keys) - 1))
+    K_pred[keys[i]], K_pred[keys[j]] = K_pred[keys[j]], K_pred[keys[i]]
 
     return K_pred
 
@@ -352,7 +383,7 @@ def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.9
         print("Itération {0}, Score: {1}, Temp: {2}".format(iteration, best_score, temp))  # TODO: REMOVE! DEBUG
 
         # Échanger aléatoirement certains symboles
-        new_mapping = swap_symbols(current_K.copy(), 32)
+        new_mapping = swap_symbols(current_K.copy(), 16)
 
         # Évaluer le nouveau message obtenu
         decrypted_message = decrypt_with_mapping(chunks, new_mapping)
@@ -393,13 +424,10 @@ def decrypt(C):
 
     return M
 
-
 # TODO: REMOVE! DEBUG FUNCTIONS
-M = generate_corpus()[:120000]
-C = chiffrer(M, K, symbols)
-D = decrypt(C)
+# M = generate_corpus()[:120000]
+# C = chiffrer(M, K, symbols)
+# D = decrypt(C)
 
 # print("M: ", M)
 # print("D: ", D)
-
-# print(find_trigram_frequency(256))
