@@ -139,7 +139,7 @@ def find_potential_conflicts():
 #### ----- VARIABLES GLOBALES (PRÉ-GÉNÉRÉES) ----- ####
 
 # Clé pour tester
-K = gen_key(symbols)  # TODO: REMOVE WHEN TESTS ARE DONE
+# K = gen_key(symbols)  # TODO: REMOVE WHEN TESTS ARE DONE
 
 # Liste de symboles ordonnés selon leurs fréquences dans le corpus
 sorted_symbols = [('e ', 0.033419467206536324), ('\r\n', 0.032038030032882386), ('s ', 0.026100041325914713),
