@@ -119,7 +119,7 @@ def find_trigram_frequency(nb_trigrams):
     return dict(trigrams)
 
 
-# Obtenir un dictionnaire des voisins impossibles (non utilisés)
+# Obtenir un dictionnaire des voisins impossibles (fonction inutilisée)
 def find_potential_conflicts():
     one_char_symbols = [symbol for symbol, _ in sorted_symbols if len(symbol) == 1]
     two_char_symbols = [symbol for symbol, _ in sorted_symbols if len(symbol) == 2]
@@ -316,7 +316,7 @@ sorted_trigrams = {' de': 0.010197210270740862, 'es ': 0.009518466344467128, 'de
                    'mes': 0.0008010401292059384}
 
 # Dictionnaire des combinaisons de caractères impossibles à réaliser
-potential_conflicts = find_potential_conflicts()
+# potential_conflicts = find_potential_conflicts()
 
 
 #### ----- MÉTHODES DE DÉCHIFFREMENT ----- ####
@@ -364,7 +364,7 @@ def swap_symbols(K_pred, distance):
 # Déchiffrer un texte avec la clé prédite
 def decrypt_with_mapping(chunks, K_pred):
     decrypted_chunks = [K_pred[chunk] for chunk in chunks]
-    errors = set()
+    # errors = set()
 
     # Trouver toutes les combinaisons impossibles présentement dans le texte
     # for i in range(len(decrypted_chunks) - 1):
@@ -373,14 +373,14 @@ def decrypt_with_mapping(chunks, K_pred):
     #             errors.add(chunks[i])
     #             errors.add(chunks[i + 1])
 
-    return ''.join(decrypted_chunks), errors
+    return ''.join(decrypted_chunks)
 
 
 # Technique de MCMC (Markov Chain Monte Carlo)
 def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.99):
     # Initialiser les variables de base
     current_K = K_pred.copy()
-    decrypted_message, _ = decrypt_with_mapping(chunks, K_pred)
+    decrypted_message = decrypt_with_mapping(chunks, K_pred)
     # lowest_conflicts = len(errors)
     best_score = score_message(decrypted_message)
     best_K = current_K.copy()
@@ -394,7 +394,7 @@ def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.9
         new_mapping = swap_symbols(current_K.copy(), 16)
 
         # Évaluer le nouveau message obtenu
-        decrypted_message, _ = decrypt_with_mapping(chunks, new_mapping)
+        decrypted_message = decrypt_with_mapping(chunks, new_mapping)
         score = score_message(decrypted_message)
 
         # Continuer à itérer avec le meilleur score obtenu
@@ -412,7 +412,7 @@ def mcmc(chunks, K_pred, max_iterations=1000, initial_temp=1.0, cooling_rate=0.9
                 current_K = new_mapping.copy()
                 # lowest_conflicts = len(errors)
 
-    return decrypt_with_mapping(chunks, best_K), best_K
+    return decrypt_with_mapping(chunks, best_K)
 
 
 # Déchiffrer le cryptogramme C
@@ -428,15 +428,15 @@ def decrypt(C):
     mapping = dict(zip(sorted_chunks, [symbol for symbol, _ in sorted_symbols]))
 
     # Décoder le message avec la technique MCMC
-    M, best_mapping = mcmc(chunks, mapping, 10000)
-    # compare_K(K, best_mapping)  # TODO: REMOVE! DEBUG FUNCTION
+    M = mcmc(chunks, mapping, 10000)
+    # compare_K(K, best_mapping)
 
-    return M
+    return str(M)
 
-# TODO: REMOVE! DEBUG FUNCTIONS
+# DEBUG TESTS
 # M = generate_corpus()[:120000]
 # C = chiffrer(M, K, symbols)
 # D = decrypt(C)
-
+#
 # print("M: ", M)
 # print("D: ", D)
